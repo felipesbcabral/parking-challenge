@@ -1,0 +1,6 @@
+@ParkingChallenge_HostAddress = http://localhost:5203
+
+GET {{ParkingChallenge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
