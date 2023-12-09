@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ParkingChallenge.Entity.Enums;
-using ParkingChallenge.Models;
-using ParkingChallenge.Models.Response;
-using ParkingChallenge.Repositories;
+using ParkingChallenge.Core.Domain.Interfaces.Requests;
+using ParkingChallenge.Core.Domain.UseCases;
+using ParkingChallenge.Core.Domain.UseCases.CreateParking;
+using ParkingChallenge.Core.Domain.UseCases.GetParking;
+using ParkingChallenge.Core.Domain.UseCases.UpdateParking;
+using ParkingChallenge.Extensions;
 
 namespace ParkingChallenge.Controllers;
 
@@ -10,49 +12,59 @@ namespace ParkingChallenge.Controllers;
 [Route("[controller]")]
 public class ParkingController : ControllerBase
 {
-    private readonly IParkingRepository _parkingRepository;
+    private readonly IRequestHandler<GetParkingInput, ResponseUseCase> _getParking;
+    private readonly IRequestHandler<CreateParkingInput, ResponseUseCase> _createParking;
+    private readonly IRequestHandler<UpdateParkingInput, ResponseUseCase> _updateParking;
 
-    public ParkingController(IParkingRepository parkingRepository)
-        => _parkingRepository = parkingRepository;
-
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ApiResponse<Parking>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById([FromRoute] string id)
+    public ParkingController(
+        IRequestHandler<GetParkingInput, ResponseUseCase> getParking,
+        IRequestHandler<CreateParkingInput, ResponseUseCase> createParking,
+        IRequestHandler<UpdateParkingInput, ResponseUseCase> updateParking)
     {
-        var output = await _parkingRepository.GetParking(id);
+        _getParking = getParking;
+        _createParking = createParking;
+        _updateParking = updateParking;
+    }
 
-        return Ok(output);
+    [HttpGet]
+    [Route("")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get()
+    {
+        var input = new GetParkingInput();
+        var useCase = await _getParking.Handle(input);
+        return this.ResponseFromUseCase(useCase);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetParkingById(string id)
+    {
+        var input = new GetParkingInput();
+        var useCase = await _getParking.Handle(input);
+        return this.ResponseFromUseCase(useCase);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateParking([FromBody] Parking request)
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseUseCase))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Post(CreateParkingInput input) =>
+            this.ResponseFromUseCase(await _createParking.Handle(input));
+
+    [HttpPut]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Put(string id, UpdateParkingInput input)
     {
-        try
-        {
-            var parking = new Parking(
-                id: string.Empty,
-                totalSpaces: request.TotalSpaces,
-                remainingSpaces: request.TotalSpaces,
-                parkingStatus: ParkingStatusEnum.Empty,
-                vehicleAvailability: new VehicleAvailability()
-                {
-                    CarRegularSpaces = request.VehicleAvailability.CarRegularSpaces,
-                    CarLargeSpaces = request.VehicleAvailability.CarLargeSpaces,
-                    MotorcycleSpaces = request.VehicleAvailability.MotorcycleSpaces,
-                    VanRegularSpaces = request.VehicleAvailability.VanRegularSpaces,
-                    VanLargeSpaces = request.VehicleAvailability.VanLargeSpaces
-                }
-            );
-
-            await _parkingRepository.CreateParking(parking);
-
-            return Created($"api/parkings/{parking.Id}", null);
-        }
-        catch (Exception ex)
-        {
-            // Log do erro
-            return BadRequest($"Error creating parking: {ex.Message}");
-        }
+        input.ParkingId = id;
+        var useCase = await _updateParking.Handle(input);
+        return this.ResponseFromUseCase(useCase);
     }
 }
