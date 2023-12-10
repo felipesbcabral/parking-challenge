@@ -2,14 +2,10 @@
 using ParkingChallenge.Core.Domain.Interfaces.Requests;
 
 namespace ParkingChallenge.Core.Domain.UseCases.UpdateParking;
-public class UpdateParkingUseCase : IRequestHandler<UpdateParkingInput, ResponseUseCase>
+public class UpdateParkingUseCase(IParkingRepository parkingRepository)
+    : IRequestHandler<UpdateParkingInput, ResponseUseCase>
 {
-    private readonly IParkingRepository _parkingRepository;
-
-    public UpdateParkingUseCase(IParkingRepository parkingRepository)
-    {
-        _parkingRepository = parkingRepository;
-    }
+    private readonly IParkingRepository _parkingRepository = parkingRepository;
 
     public async Task<ResponseUseCase> Handle(UpdateParkingInput request)
     {
@@ -19,6 +15,9 @@ public class UpdateParkingUseCase : IRequestHandler<UpdateParkingInput, Response
         {
             return ResponseUseCase.NotFound("Estacionamento não encontrado");
         }
+
+
+        existingParking.ParkVan();
 
         existingParking.MotorcyclesSpaces = request.MotorcycleSpaces;
         existingParking.CarSpaces = request.CarSpaces;
@@ -34,5 +33,4 @@ public class UpdateParkingUseCase : IRequestHandler<UpdateParkingInput, Response
             return ResponseUseCase.NotFound($"Erro ao atualizar o estacionamento: {ex.Message}");
         }
     }
-
 }
