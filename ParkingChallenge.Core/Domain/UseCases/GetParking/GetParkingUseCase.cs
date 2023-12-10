@@ -25,7 +25,7 @@ public class GetParkingUseCase : IRequestHandler<GetParkingInput, ResponseUseCas
                 IsFull = x.IsFull,
                 IsEmpty = x.IsEmpty,
                 CarsFull = x.CarsFull,
-                MotorcyclesFull = x.MotorcuclesFull,
+                MotorcyclesFull = x.MotorcyclesFull,
                 VansFull = x.VansFull
             }).ToList();
 

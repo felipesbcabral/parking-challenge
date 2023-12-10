@@ -7,7 +7,6 @@ public class CreateParkingUseCase : IRequestHandler<CreateParkingInput, Response
 {
     private readonly IParkingRepository _parkingRepository;
 
-
     public CreateParkingUseCase(IParkingRepository parkingRepository)
     {
         _parkingRepository = parkingRepository;
@@ -16,6 +15,9 @@ public class CreateParkingUseCase : IRequestHandler<CreateParkingInput, Response
     public async Task<ResponseUseCase> Handle(CreateParkingInput request)
     {
         var newParking = CreateParkingFromInput(request);
+
+        newParking.ParkVan();
+
         await _parkingRepository.CreateParking(newParking);
 
         var output = CreateParkingOutput(newParking);
@@ -23,16 +25,13 @@ public class CreateParkingUseCase : IRequestHandler<CreateParkingInput, Response
     }
 
     private Parking CreateParkingFromInput(CreateParkingInput request)
-    {
-        return new Parking(
+        => new(
             new(request.MotorcycleSpaces),
             new(request.CarSpaces),
             new(request.VanSpaces));
-    }
 
     private CreateParkingOutput CreateParkingOutput(Parking newParking)
-    {
-        return new CreateParkingOutput(
+        => new(
             newParking.CarSpaces,
             newParking.VanSpaces,
             newParking.MotorcyclesSpaces)
@@ -43,9 +42,7 @@ public class CreateParkingUseCase : IRequestHandler<CreateParkingInput, Response
             IsFull = newParking.IsFull,
             IsEmpty = newParking.IsEmpty,
             CarsFull = newParking.CarsFull,
-            MotorcyclesFull = newParking.MotorcuclesFull,
+            MotorcyclesFull = newParking.MotorcyclesFull,
             VansFull = newParking.VansFull
         };
-    }
 }
-

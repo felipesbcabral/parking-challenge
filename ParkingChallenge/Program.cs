@@ -3,15 +3,14 @@ using ParkingChallenge.Core.Domain.Interfaces.Repositories;
 using ParkingChallenge.Core.Domain.Interfaces.Requests;
 using ParkingChallenge.Core.Domain.UseCases;
 using ParkingChallenge.Core.Domain.UseCases.CreateParking;
+using ParkingChallenge.Core.Domain.UseCases.DeleteParking;
 using ParkingChallenge.Core.Domain.UseCases.GetParking;
+using ParkingChallenge.Core.Domain.UseCases.GetParkingById;
 using ParkingChallenge.Core.Domain.UseCases.UpdateParking;
 using ParkingChallenge.Core.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
-
-//builder.Services.Configure<ParkingDatabaseConfiguration>(
-//    builder.Configuration.GetSection("ConnectionStrings"));
 
 var connectionString = builder.Configuration.GetValue<string>("ConnectionStrings:ConnectionString");
 var databaseName = builder.Configuration.GetValue<string>("ConnectionStrings:DatabaseName");
@@ -22,11 +21,12 @@ builder.Services.AddScoped<IParkingRepository, ParkingRepository>(x => new Parki
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddSingleton<ParkingContext>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IRequestHandler<GetParkingInput, ResponseUseCase>, GetParkingUseCase>();
 builder.Services.AddScoped<IRequestHandler<CreateParkingInput, ResponseUseCase>, CreateParkingUseCase>();
 builder.Services.AddScoped<IRequestHandler<UpdateParkingInput, ResponseUseCase>, UpdateParkingUseCase>();
+builder.Services.AddScoped<IRequestHandler<GetParkingInputById, ResponseUseCase>, GetParkingByIdUseCase>();
+builder.Services.AddScoped<IRequestHandler<DeleteParkingInput, ResponseUseCase>, DeleteParkingUseCase>();
 
 var app = builder.Build();
 
