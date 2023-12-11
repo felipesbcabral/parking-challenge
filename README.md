@@ -23,7 +23,7 @@
  git clone https://github.com/felipesbcabral/parking-challenge
 
 ## - Inicie os Contêineres Docker:
- docker-compose up -d
+ - docker-compose up -d
 
 ## - Acesse a Aplicação: 
  A aplicação estará disponível onde PORTA é a porta configurada no arquivo de composição do Docker.
