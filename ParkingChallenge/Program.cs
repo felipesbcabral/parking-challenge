@@ -1,3 +1,4 @@
+using FluentValidation;
 using MongoDB.Driver;
 using ParkingChallenge.Core.Domain.Interfaces.Repositories;
 using ParkingChallenge.Core.Domain.Interfaces.Requests;
@@ -8,6 +9,7 @@ using ParkingChallenge.Core.Domain.UseCases.GetParking;
 using ParkingChallenge.Core.Domain.UseCases.GetParkingById;
 using ParkingChallenge.Core.Domain.UseCases.UpdateParking;
 using ParkingChallenge.Core.Infra;
+using static ParkingChallenge.Core.Domain.UseCases.CreateParking.CreateParkingInput;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -27,6 +29,7 @@ builder.Services.AddScoped<IRequestHandler<CreateParkingInput, ResponseUseCase>,
 builder.Services.AddScoped<IRequestHandler<UpdateParkingInput, ResponseUseCase>, UpdateParkingUseCase>();
 builder.Services.AddScoped<IRequestHandler<GetParkingInputById, ResponseUseCase>, GetParkingByIdUseCase>();
 builder.Services.AddScoped<IRequestHandler<DeleteParkingInput, ResponseUseCase>, DeleteParkingUseCase>();
+builder.Services.AddScoped<IValidator<CreateParkingInput>, CreateParkingValidation>();
 
 var app = builder.Build();
 
