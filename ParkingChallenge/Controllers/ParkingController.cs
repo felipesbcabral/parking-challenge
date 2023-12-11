@@ -53,7 +53,8 @@ public class ParkingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetParkingById([FromRoute] string id)
     {
-        var useCase = await _getParkingById.Handle(new GetParkingInputById(id));
+        var input = new GetParkingInputById { Id = id };
+        var useCase = await _getParkingById.Handle(input);
         return this.ResponseFromUseCase(useCase);
     }
 
@@ -67,8 +68,9 @@ public class ParkingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateParking([FromBody] UpdateParkingInput input)
+    public async Task<IActionResult> UpdateParking([FromRoute] string id, [FromBody] UpdateParkingInput input)
     {
+        input.ParkingId = id;
         var useCase = await _updateParking.Handle(input);
         return this.ResponseFromUseCase(useCase);
     }

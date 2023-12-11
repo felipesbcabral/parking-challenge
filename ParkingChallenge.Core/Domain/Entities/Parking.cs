@@ -1,4 +1,5 @@
-﻿using ParkingChallenge.Core.Domain.Validation;
+﻿using ParkingChallenge.Core.Domain.Exceptions;
+using ParkingChallenge.Core.Domain.Validation;
 
 namespace ParkingChallenge.Core.Domain.Entities;
 public class Parking : Entity
@@ -58,10 +59,22 @@ public class Parking : Entity
         DomainValidation.MinValue(VanSpaces.Free, 0, nameof(VanSpaces.Free));
         DomainValidation.MinValue(VanSpaces.Occupied, 0, nameof(VanSpaces.Occupied));
         DomainValidation.MinValue(CalculateTotalSpaces(), 1, nameof(TotalSpaces));
+
+        if (CarSpaces.Total != 0 && VanSpaces.Total != 0 && MotorcyclesSpaces.Total != 0)
+        {
+            return;
+        }
+        throw new EntityValidationException("All types of vehicle spaces must be greater than zero.");
     }
 
     private int CalculateTotalSpaces()
-        => CarSpaces.Total + VanSpaces.Total + MotorcyclesSpaces.Total;
+    {
+        int carTotal = Math.Max(0, CarSpaces.Total);
+        int vanTotal = Math.Max(0, VanSpaces.Total);
+        int motorcycleTotal = Math.Max(0, MotorcyclesSpaces.Total);
+
+        return carTotal + vanTotal + motorcycleTotal;
+    }
 
     private int CalculateFreeSpaces()
         => CarSpaces.Free + VanSpaces.Free + MotorcyclesSpaces.Free;
@@ -84,15 +97,13 @@ public class Parking : Entity
             return;
         }
 
-        if (VanSpaces.Occupied == 1)
+        int spacesToDeduct = VanSpaces.Occupied == 1 ? 3 : VanSpaces.Occupied * 3;
+        CarSpaces.Free -= spacesToDeduct;
+
+        if (VanSpaces.Occupied < VanSpaces.Total)
         {
-            CarSpaces.Free -= 3;
+            VanSpaces.Occupied++;
         }
-        else
-        {
-            CarSpaces.Free -= VanSpaces.Occupied * 3;
-        }
-        VanSpaces.Occupied = Math.Min(VanSpaces.Total, VanSpaces.Occupied + 1);
     }
 }
 

@@ -6,7 +6,7 @@ public abstract class Entity
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; private set; }
+    public string? Id { get; set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; protected set; }
 

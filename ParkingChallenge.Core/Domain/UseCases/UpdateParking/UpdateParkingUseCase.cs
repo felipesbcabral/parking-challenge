@@ -26,7 +26,7 @@ public class UpdateParkingUseCase(IParkingRepository parkingRepository)
         try
         {
             await _parkingRepository.UpdateParking(existingParking);
-            return ResponseUseCase.Ok("Estacionamento atualizado com sucesso");
+            return ResponseUseCase.Ok(existingParking);
         }
         catch (Exception ex)
         {
